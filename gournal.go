@@ -1,39 +1,43 @@
 package gournal
 
-// Tracker helper pour suivre les erreurs lors d'un traitement
+// Tracker is the main objet uppon which errors are tracked
 type Tracker struct {
 	Context map[string]string
 	Count   int
-	Errors  map[int][]string
+	Errors  map[int][]error
 	Reports map[string]ReportFunction
 }
 
 // ReportFunction describes functions that are able to provide reports.
 type ReportFunction func(tracker Tracker) interface{}
 
+// NewTracker is the constructor for tracker objects
+func NewTracker(context map[string]string, reportFunctions map[string]ReportFunction) Tracker {
+	tracker := Tracker{}
+	tracker.Reports = reportFunctions
+	tracker.Context = context
+	tracker.Errors = make(map[int][]error)
+	return tracker
+}
+
 // Next step, increases count.
 func (tracker *Tracker) Next() {
 	tracker.Count++
 }
 
-// Error prend note des erreurs non nil
+// Error stores non nil errors
 func (tracker *Tracker) Error(err error) {
 	if err != nil {
 		cycleErrors, ok := tracker.Errors[tracker.Count]
-		if tracker.Errors == nil {
-			tracker.Errors = make(map[int][]string)
-		}
 		if !ok {
-			cycleErrors = make([]string, 0)
+			cycleErrors = make([]error, 0)
 		}
-
-		cycleErrors = append(cycleErrors, err.Error())
-
+		cycleErrors = append(cycleErrors, err)
 		tracker.Errors[tracker.Count] = cycleErrors
 	}
 }
 
-// ErrorInCycle permet de savoir si des erreurs ont été constatées pendant le cycle
+// ErrorInCycle tells if there are errors in the current cycle
 func (tracker Tracker) ErrorInCycle() bool {
 	return len(tracker.Errors[tracker.Count]) > 0
 }
@@ -42,9 +46,8 @@ func (tracker Tracker) ErrorInCycle() bool {
 func (tracker Tracker) Report(code string) interface{} {
 	if _, ok := tracker.Reports[code]; ok {
 		return tracker.Reports[code](tracker)
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // CountErrors returns total count of errors accounted since the start of the tracker
@@ -57,15 +60,6 @@ func (tracker Tracker) CountErrors() int {
 }
 
 // CurrentErrors returns errors recorded during the cycle
-func (tracker Tracker) CurrentErrors() []string {
+func (tracker Tracker) CurrentErrors() []error {
 	return tracker.Errors[tracker.Count]
-}
-
-// NewTracker provides a brand new tracker instance
-func NewTracker(context map[string]string, reportFunctions map[string]ReportFunction) Tracker {
-	tracker := Tracker{}
-	tracker.Reports = reportFunctions
-	tracker.Context = context
-	tracker.Errors = make(map[int][]string)
-	return tracker
 }
