@@ -59,6 +59,17 @@ func (tracker Tracker) CountErrors() int {
 	return l
 }
 
+// CountErrorCycles returns count of cycle with at least 1 error since the start of the tracker
+func (tracker Tracker) CountErrorCycles() int {
+	l := 0
+	for _, e := range tracker.Errors {
+		if len(e) > 0 {
+			l++
+		}
+	}
+	return l
+}
+
 // CurrentErrors returns errors recorded during the cycle
 func (tracker Tracker) CurrentErrors() []error {
 	return tracker.Errors[tracker.Count]
