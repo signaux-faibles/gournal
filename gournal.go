@@ -37,9 +37,14 @@ func (tracker *Tracker) Error(err error) {
 	}
 }
 
+// CurrentErrors returns errors recorded during the cycle
+func (tracker Tracker) CurrentErrors() []error {
+	return tracker.Errors[tracker.Count]
+}
+
 // ErrorInCycle tells if there are errors in the current cycle
 func (tracker Tracker) ErrorInCycle() bool {
-	return len(tracker.Errors[tracker.Count]) > 0
+	return len(tracker.CurrentErrors()) > 0
 }
 
 // Report executes a reporting function and returns the report
@@ -68,9 +73,4 @@ func (tracker Tracker) CountErrorCycles() int {
 		}
 	}
 	return l
-}
-
-// CurrentErrors returns errors recorded during the cycle
-func (tracker Tracker) CurrentErrors() []error {
-	return tracker.Errors[tracker.Count]
 }

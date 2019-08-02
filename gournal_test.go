@@ -65,11 +65,17 @@ func Test_CountError(t *testing.T) {
 	tracker.Error(errors.New("error 2"))
 	tracker.Error(errors.New("error 3"))
 	tracker.Next()
+	tracker.Next()
 
 	if tracker.CountErrors() == 6 {
 		t.Log("CountError == 6: Ok")
 	} else {
 		t.Fatal("CountError == 6: Fail")
+	}
+	if tracker.CountErrorCycles() == 2 {
+		t.Log("CountErrorCycles == 2: Ok")
+	} else {
+		t.Fatal("CountErrorCycles == 2: Fail")
 	}
 }
 
