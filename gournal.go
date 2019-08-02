@@ -1,5 +1,7 @@
 package gournal
 
+import "regexp"
+
 // Tracker is the main objet uppon which errors are tracked
 type Tracker struct {
 	Context map[string]string
@@ -38,13 +40,22 @@ func (tracker *Tracker) Error(err error) {
 }
 
 // CurrentErrors returns errors recorded during the cycle
-func (tracker Tracker) CurrentErrors() []error {
-	return tracker.Errors[tracker.Count]
+func (tracker Tracker) CurrentErrors(regexp *regexp.Regexp) []error {
+	if regexp == nil {
+		return tracker.Errors[tracker.Count]
+	}
+	var ret []error
+	for _, err := range tracker.Errors[tracker.Count] {
+		if regexp.MatchString(err.Error()) {
+			ret = append(ret, err)
+		}
+	}
+	return ret
 }
 
 // ErrorInCycle tells if there are errors in the current cycle
-func (tracker Tracker) ErrorInCycle() bool {
-	return len(tracker.CurrentErrors()) > 0
+func (tracker Tracker) ErrorInCycle(regexp *regexp.Regexp) bool {
+	return len(tracker.CurrentErrors(regexp)) > 0
 }
 
 // Report executes a reporting function and returns the report
