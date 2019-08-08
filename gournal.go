@@ -1,6 +1,9 @@
 package gournal
 
-import "regexp"
+import (
+	"errors"
+	"regexp"
+)
 
 // Tracker is the main objet uppon which errors are tracked
 type Tracker struct {
@@ -39,23 +42,37 @@ func (tracker *Tracker) Error(err error) {
 	}
 }
 
-// CurrentErrors returns errors recorded during the cycle
-func (tracker Tracker) CurrentErrors(regexp *regexp.Regexp) []error {
+func (tracker Tracker) ErrorsInCycleN(regexp *regexp.Regexp, cycle int) ([]error, error) {
+	if cycle < 0 || cycle > tracker.Count {
+		return nil, errors.New("Invalid cycle")
+	}
 	if regexp == nil {
-		return tracker.Errors[tracker.Count]
+		return tracker.Errors[cycle], nil
 	}
 	var ret []error
-	for _, err := range tracker.Errors[tracker.Count] {
+	for _, err := range tracker.Errors[cycle] {
 		if regexp.MatchString(err.Error()) {
 			ret = append(ret, err)
 		}
 	}
-	return ret
+	return ret, nil
 }
 
-// ErrorInCycle tells if there are errors in the current cycle
-func (tracker Tracker) ErrorInCycle(regexp *regexp.Regexp) bool {
-	return len(tracker.CurrentErrors(regexp)) > 0
+// ErrorsInCurrentCycle returns errors recorded during the cycle
+func (tracker Tracker) ErrorsInCurrentCycle(regexp *regexp.Regexp) []error {
+	res, _ := tracker.ErrorsInCycleN(regexp, tracker.Count)
+	return res
+}
+
+// HasErrorInCurrentCycle tells if there are errors in the current cycle
+func (tracker Tracker) HasErrorInCurrentCycle(regexp *regexp.Regexp) bool {
+	return len(tracker.ErrorsInCurrentCycle(regexp)) > 0
+}
+
+// HasErrorInCycleN tells if there are errors in the current cycle
+func (tracker Tracker) HasErrorInCycleN(regexp *regexp.Regexp, cycle int) (bool, error) {
+	res, err := tracker.ErrorsInCycleN(regexp, cycle)
+	return len(res) > 0, err
 }
 
 // Report executes a reporting function and returns the report
