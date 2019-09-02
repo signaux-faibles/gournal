@@ -2,7 +2,6 @@ package gournal
 
 import (
 	"errors"
-	"regexp"
 )
 
 // Tracker is the main objet uppon which errors are tracked
@@ -42,36 +41,27 @@ func (tracker *Tracker) Error(err error) {
 	}
 }
 
-func (tracker Tracker) ErrorsInCycleN(regexp *regexp.Regexp, cycle int) ([]error, error) {
+func (tracker Tracker) ErrorsInCycleN(cycle int) ([]error, error) {
 	if cycle < 0 || cycle > tracker.Count {
 		return nil, errors.New("Invalid cycle")
 	}
-	if regexp == nil {
-		return tracker.Errors[cycle], nil
-	}
-	var ret []error
-	for _, err := range tracker.Errors[cycle] {
-		if regexp.MatchString(err.Error()) {
-			ret = append(ret, err)
-		}
-	}
-	return ret, nil
+	return tracker.Errors[cycle], nil
 }
 
 // ErrorsInCurrentCycle returns errors recorded during the cycle
-func (tracker Tracker) ErrorsInCurrentCycle(regexp *regexp.Regexp) []error {
-	res, _ := tracker.ErrorsInCycleN(regexp, tracker.Count)
+func (tracker Tracker) ErrorsInCurrentCycle() []error {
+	res, _ := tracker.ErrorsInCycleN(tracker.Count)
 	return res
 }
 
 // HasErrorInCurrentCycle tells if there are errors in the current cycle
-func (tracker Tracker) HasErrorInCurrentCycle(regexp *regexp.Regexp) bool {
-	return len(tracker.ErrorsInCurrentCycle(regexp)) > 0
+func (tracker Tracker) HasErrorInCurrentCycle() bool {
+	return len(tracker.ErrorsInCurrentCycle()) > 0
 }
 
 // HasErrorInCycleN tells if there are errors in the current cycle
-func (tracker Tracker) HasErrorInCycleN(regexp *regexp.Regexp, cycle int) (bool, error) {
-	res, err := tracker.ErrorsInCycleN(regexp, cycle)
+func (tracker Tracker) HasErrorInCycleN(cycle int) (bool, error) {
+	res, err := tracker.ErrorsInCycleN(cycle)
 	return len(res) > 0, err
 }
 
