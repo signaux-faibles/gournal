@@ -57,13 +57,13 @@ func Test_CountError(t *testing.T) {
 		t.Fatal("CountError == 0: Fail")
 	}
 
-	tracker.Error(errors.New("error 1"))
-	tracker.Error(errors.New("error 2"))
-	tracker.Error(errors.New("error 3"))
+	tracker.Add(errors.New("error 1"))
+	tracker.Add(errors.New("error 2"))
+	tracker.Add(errors.New("error 3"))
 	tracker.Next()
-	tracker.Error(errors.New("error 1"))
-	tracker.Error(errors.New("error 2"))
-	tracker.Error(errors.New("error 3"))
+	tracker.Add(errors.New("error 1"))
+	tracker.Add(errors.New("error 2"))
+	tracker.Add(errors.New("error 3"))
 	tracker.Next()
 	tracker.Next()
 
@@ -88,9 +88,9 @@ func Test_HasErrorInCycleN(t *testing.T) {
 		t.Fatal("New tracker has no error: Fail")
 	}
 
-	tracker.Error(errors.New("error 1"))
-	tracker.Error(errors.New("error 2"))
-	tracker.Error(errors.New("error 3"))
+	tracker.Add(errors.New("error 1"))
+	tracker.Add(errors.New("error 2"))
+	tracker.Add(errors.New("error 3"))
 
 	if b, err := tracker.HasErrorInCycleN(0); b && err == nil {
 		t.Log("tracker has errors: Ok ")
@@ -113,9 +113,9 @@ func Test_HasErrorInCurrentCycle(t *testing.T) {
 		t.Fatal("New tracker has no error: Fail")
 	}
 
-	tracker.Error(errors.New("error 1"))
-	tracker.Error(errors.New("error 2"))
-	tracker.Error(errors.New("error 3"))
+	tracker.Add(errors.New("error 1"))
+	tracker.Add(errors.New("error 2"))
+	tracker.Add(errors.New("error 3"))
 
 	if tracker.HasErrorInCurrentCycle() {
 		t.Log("Tracker with 3 errors in the current cycle has errors: Ok")
@@ -130,7 +130,7 @@ func Test_HasErrorInCurrentCycle(t *testing.T) {
 		t.Fatal("Tracker with new cycle has no errors: Fail")
 	}
 
-	tracker.Error(nil)
+	tracker.Add(nil)
 	if !tracker.HasErrorInCurrentCycle() {
 		t.Log("Tracker cycle with nil Error has no errors: Ok")
 	} else {
@@ -146,8 +146,8 @@ func Test_ErrorsInCycleN(t *testing.T) {
 	} else {
 		t.Fatal("New tracker has no error: Fail")
 	}
-	tracker.Error(errors.New("test error 1"))
-	tracker.Error(errors.New("test error 2"))
+	tracker.Add(errors.New("test error 1"))
+	tracker.Add(errors.New("test error 2"))
 	tracker.Next()
 
 	if errs, err := tracker.ErrorsInCycleN(0); err == nil &&
@@ -174,8 +174,8 @@ func Test_ErrorsInCurrentCycle(t *testing.T) {
 		t.Fatal("New tracker has no error: Fail")
 	}
 
-	tracker.Error(errors.New("test error 1"))
-	tracker.Error(errors.New("test error 2"))
+	tracker.Add(errors.New("test error 1"))
+	tracker.Add(errors.New("test error 2"))
 
 	if len(tracker.ErrorsInCurrentCycle()) == 2 {
 		t.Log("Tracker with 2 errors in current cycle has 2 errors: Ok")

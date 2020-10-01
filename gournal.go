@@ -29,8 +29,8 @@ func (tracker *Tracker) Next() {
 	tracker.Count++
 }
 
-// Error stores non nil errors
-func (tracker *Tracker) Error(err error) {
+// Add stores non nil errors
+func (tracker *Tracker) Add(err error) {
 	if err != nil {
 		cycleErrors, ok := tracker.Errors[tracker.Count]
 		if !ok {
