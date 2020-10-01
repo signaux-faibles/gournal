@@ -29,8 +29,8 @@ func (tracker *Tracker) Next() {
 	tracker.Count++
 }
 
-// Error stores non nil errors
-func (tracker *Tracker) Error(err error) {
+// Add stores non nil errors
+func (tracker *Tracker) Add(err error) {
 	if err != nil {
 		cycleErrors, ok := tracker.Errors[tracker.Count]
 		if !ok {
@@ -41,6 +41,7 @@ func (tracker *Tracker) Error(err error) {
 	}
 }
 
+// ErrorsInCycleN returns errors recorded during the specified cycle
 func (tracker Tracker) ErrorsInCycleN(cycle int) ([]error, error) {
 	if cycle < 0 || cycle > tracker.Count {
 		return nil, errors.New("Invalid cycle")
@@ -48,7 +49,7 @@ func (tracker Tracker) ErrorsInCycleN(cycle int) ([]error, error) {
 	return tracker.Errors[cycle], nil
 }
 
-// ErrorsInCurrentCycle returns errors recorded during the cycle
+// ErrorsInCurrentCycle returns errors recorded during the current cycle
 func (tracker Tracker) ErrorsInCurrentCycle() []error {
 	res, _ := tracker.ErrorsInCycleN(tracker.Count)
 	return res
